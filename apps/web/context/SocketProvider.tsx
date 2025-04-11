@@ -1,5 +1,5 @@
 "use client";   
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import io from "socket.io-client"; 
 
 interface SocketContextType {
@@ -10,7 +10,13 @@ interface ISocketContext {
 }
 
 const SocketContext = React.createContext<ISocketContext | null>(null);
-
+export const useSocket = () => {
+    const state = useContext(SocketContext);
+    if (!state) {
+        throw new Error("useSocket must be used within a SocketProvider");
+    }
+    return state;
+}
 export const SockerProvider: React.FC<SocketContextType> = ({ children }) => {
     const sendMessage: ISocketContext["sendMessage"] = (message: string) => {
         console.log("sendMessage", message);
