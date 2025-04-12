@@ -1,84 +1,135 @@
-# Turborepo starter
+# Scalable Node.js Socket Chat Application
 
-This Turborepo starter is maintained by the Turborepo core team.
+## 🏗️ Architecture
+[![Architecture](architecture.png)](architecture.png)
 
-## Using this example
+### Pub/Sub Architecture with Redis/Valkey
+This chat application uses a publish/subscribe (pub/sub) pattern with Redis/Valkey as the message broker. Here's how it works:
 
-Run the following command:
+1. **Client-Side (Web Application)**:
+   - Built with React and Socket.IO client
+   - Connects to the server via WebSocket
+   - Sends messages to the server
+   - Receives broadcasted messages from all users
 
-```sh
-npx create-turbo@latest
+2. **Server-Side (Node.js)**:
+   - Uses Socket.IO for real-time communication
+   - Implements a pub/sub pattern with Redis/Valkey
+   - Handles message broadcasting to all connected clients
+
+3. **Message Flow**:
+   ```
+   Client A -> Server -> Redis Pub -> Redis Sub -> Server -> All Clients
+   ```
+   - When a user sends a message, it's published to a Redis channel
+   - The server subscribes to this channel
+   - When a message is received, it's broadcasted to all connected clients
+
+4. **Redis/Valkey Cloud (Aiven)**:
+   - Used as a message broker for pub/sub
+   - Ensures reliable message delivery
+   - Enables horizontal scaling of the application
+   - Provides persistence and high availability
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v14 or higher)
+- Yarn package manager
+- Redis/Valkey instance (we use Aiven Cloud)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/scalable-nodejs-socket-chat-app.git
+   cd scalable-nodejs-socket-chat-app
+   ```
+
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the `apps/server` directory with the following variables:
+   ```
+   REDIS_HOST=your-redis-host
+   REDIS_PORT=your-redis-port
+   REDIS_USERNAME=your-redis-username
+   REDIS_PASSWORD=your-redis-password
+   ```
+
+4. Start the development servers:
+   ```bash
+   # Start the server
+   cd apps/server
+   yarn dev
+
+   # In a new terminal, start the web client
+   cd apps/web
+   yarn dev
+   ```
+
+5. Open your browser and navigate to `http://localhost:3000`
+
+## 🛠️ Tech Stack
+
+- **Frontend**:
+  - React
+  - Socket.IO Client
+  - TypeScript
+  - CSS Modules
+
+- **Backend**:
+  - Node.js
+  - Socket.IO Server
+  - TypeScript
+  - Redis/Valkey (Aiven Cloud)
+
+## 📦 Project Structure
+
+```
+scalable-nodejs-socket-chat-app/
+├── apps/
+│   ├── web/                 # React frontend
+│   │   ├── app/
+│   │   │   ├── context/     # Socket context
+│   │   │   └── page.tsx     # Main chat page
+│   │   └── package.json
+│   └── server/              # Node.js backend
+│       ├── src/
+│       │   ├── services/    # Socket service
+│       │   └── index.ts     # Server entry
+│       └── package.json
+└── package.json
 ```
 
-## What's inside?
+## 🔧 Environment Variables
 
-This Turborepo includes the following packages/apps:
+The following environment variables are required for the server:
 
-### Apps and Packages
+| Variable | Description |
+|----------|-------------|
+| REDIS_HOST | Redis/Valkey host URL |
+| REDIS_PORT | Redis/Valkey port number |
+| REDIS_USERNAME | Redis/Valkey username |
+| REDIS_PASSWORD | Redis/Valkey password |
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## 🤝 Contributing
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-### Utilities
+## 📝 License
 
-This Turborepo has some additional tools already setup for you:
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## 🙏 Acknowledgments
 
-### Build
-
-To build all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-pnpm dev
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-npx turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-npx turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/docs/reference/command-line-reference)
+- [Socket.IO](https://socket.io/) for real-time communication
+- [Aiven](https://aiven.io/) for Redis/Valkey cloud hosting
+- [React](https://reactjs.org/) for the frontend framework
